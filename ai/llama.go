@@ -10,13 +10,15 @@ import (
 	"net/http"
 )
 
+const LlamaAPI = "/v1/chat/completions"
+
 // LlamaModel 适配本地 LLaMA
 type LlamaModel struct {
 	apiURL string
 }
 
-func NewLlamaModel(apiURL string) *LlamaModel {
-	return &LlamaModel{apiURL: apiURL}
+func NewLlamaModel(host, port string) *LlamaModel {
+	return &LlamaModel{apiURL: "http://" + host + ":" + port + LlamaAPI}
 }
 
 func (m *LlamaModel) Chat(ctx context.Context, input string) (string, error) {

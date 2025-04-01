@@ -1,0 +1,5 @@
+{
+  "ai_model_config": {
+    "llama_host": "172.26.108.143",
+    "llama_port": "11434"}
+}

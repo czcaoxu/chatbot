@@ -2,18 +2,19 @@ package main
 
 import (
 	"chatbot/ai"
+	"chatbot/config"
 	"context"
 	"database/sql"
+	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis"
 	"net/http"
-
-	"github.com/gin-gonic/gin"
 )
 
 var (
-	router = ai.NewModelRouter()
-	db     *sql.DB
-	rdb    *redis.Client
+	cofing, _ = config.LoadConfig("./config/service.json")
+	router    = ai.NewModelRouter(&cofing.AIModelConfig)
+	db        *sql.DB
+	rdb       *redis.Client
 )
 
 // 聊天 API
