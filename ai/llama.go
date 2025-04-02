@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"os"
 )
 
 const LlamaAPI = "/v1/chat/completions"
@@ -17,8 +18,10 @@ type LlamaModel struct {
 	apiURL string
 }
 
-func NewLlamaModel(host, port string) *LlamaModel {
-	return &LlamaModel{apiURL: "http://" + host + ":" + port + LlamaAPI}
+func NewLlamaModel() *LlamaModel {
+	url := os.Getenv("OLLAMA_URL") + LlamaAPI
+	fmt.Println("llama url: ", url)
+	return &LlamaModel{apiURL: url}
 }
 
 func (m *LlamaModel) Chat(ctx context.Context, input string) (string, error) {
@@ -50,6 +53,7 @@ func (m *LlamaModel) Chat(ctx context.Context, input string) (string, error) {
 	var chatResp ChatResponse
 	if err := json.Unmarshal(body, &chatResp); err != nil {
 		fmt.Println("JSON 解析错误:", err)
+		fmt.Println("Body:", body)
 		return "", errors.New("JSON 解析错误: " + err.Error())
 	}
 

@@ -2,19 +2,18 @@ package main
 
 import (
 	"chatbot/ai"
-	"chatbot/config"
+	"chatbot/database"
 	"context"
-	"database/sql"
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis"
 	"net/http"
 )
 
 var (
-	cofing, _ = config.LoadConfig("./config/service.json")
-	router    = ai.NewModelRouter(&cofing.AIModelConfig)
-	db        *sql.DB
-	rdb       *redis.Client
+	//cfg, _ = config.LoadConfig("./config/service.json")
+	router = ai.NewModelRouter()
+	db     = database.NewMySQLClient()
+	rdb    *redis.Client
 )
 
 // 聊天 API
@@ -47,6 +46,7 @@ func chatHandler(c *gin.Context) {
 	}
 
 	// 记录聊天历史
+	db.SaveMessage(req.UserID, req.Text, reply)
 	//rdb.Set(historyKey, prevMessages+req.Text+"\nAI: "+reply, 10*time.Minute)
 	//db.Exec("INSERT INTO chat_history (user_id, message, response) VALUES (?, ?, ?)", req.UserID, req.Text, reply)
 
@@ -60,16 +60,16 @@ func modelsHandler(c *gin.Context) {
 
 // 获取聊天历史
 func historyHandler(c *gin.Context) {
-	userID := c.Query("user_id")
-	rows, _ := db.Query("SELECT message, response FROM chat_history WHERE user_id = ? ORDER BY created_at DESC LIMIT 20", userID)
-
-	var history []map[string]string
-	for rows.Next() {
-		var msg, resp string
-		rows.Scan(&msg, &resp)
-		history = append(history, map[string]string{"user": msg, "bot": resp})
-	}
-	c.JSON(http.StatusOK, history)
+	//userID := c.Query("user_id")
+	//rows, _ := db.Query("SELECT message, response FROM chat_history WHERE user_id = ? ORDER BY created_at DESC LIMIT 20", userID)
+	//
+	//var history []map[string]string
+	//for rows.Next() {
+	//	var msg, resp string
+	//	rows.Scan(&msg, &resp)
+	//	history = append(history, map[string]string{"user": msg, "bot": resp})
+	//}
+	//c.JSON(http.StatusOK, history)
 }
 
 // 清除上下文

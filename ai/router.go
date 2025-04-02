@@ -1,7 +1,6 @@
 package ai
 
 import (
-	"chatbot/config"
 	"errors"
 )
 
@@ -10,12 +9,12 @@ type ModelRouter struct {
 	models map[string]AIModel
 }
 
-func NewModelRouter(config *config.AIModelConfig) *ModelRouter {
+func NewModelRouter() *ModelRouter {
 	return &ModelRouter{
 		models: map[string]AIModel{
-			"openai": NewOpenAIModel(config.OpenAIKey),
-			"qwen":   NewQwenModel(config.QwenKey),
-			"llama":  NewLlamaModel(config.LlamaHost, config.LlamaPort),
+			"openai": NewOpenAIModel(""),
+			"qwen":   NewQwenModel(""),
+			"llama":  NewLlamaModel(),
 		},
 	}
 }
