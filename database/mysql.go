@@ -3,11 +3,9 @@ package database
 import (
 	"chatbot/lib"
 	"fmt"
-	"log"
-	"os"
-
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"os"
 )
 
 // MySQLClient
@@ -33,9 +31,11 @@ func connectDB() *gorm.DB {
 
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
 		dbUser, dbPassword, dbHost, dbPort, dbName)
+
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
-		log.Fatal("数据库连接失败:", err)
+		fmt.Println("数据库连接失败:", err)
+		return nil
 	}
 
 	// 自动迁移表结构
@@ -45,12 +45,27 @@ func connectDB() *gorm.DB {
 }
 
 // 保存聊天记录
-func (m *MySQLClient) SaveMessage(userID, userMsg, botResponse string) {
-	message := lib.Message{UserID: userID, Message: userMsg, Response: botResponse}
+func (m *MySQLClient) SaveMessage(req *lib.ChatRequest, botResponse string) {
+	message := lib.Message{
+		UserID:    req.UserID,
+		SessionID: req.SessionID,
+		Model:     req.Model,
+		Message:   req.Text,
+		Response:  botResponse}
 	m.client.Create(&message)
 	fmt.Println("聊天记录已保存！")
 }
 
-func (m *MySQLClient) QueryHistoryMessages(userID string) []*lib.Message {
-	return nil
+func (m *MySQLClient) QueryHistoryMessages(req *lib.ChatRequest) []*lib.Message {
+	messages := []*lib.Message{}
+	result := m.client.Where("user_id = ? AND session_id = ? AND model = ?", req.UserID, req.SessionID, req.Model).
+		Order("created_at asc").
+		Find(&messages)
+
+	if result.Error != nil {
+		fmt.Println("查寻出错：", result.Error)
+		return nil
+	}
+
+	return messages
 }

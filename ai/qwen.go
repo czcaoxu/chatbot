@@ -15,7 +15,7 @@ func NewQwenModel(apiKey string) *QwenModel {
 	return &QwenModel{apiKey: apiKey}
 }
 
-func (m *QwenModel) Chat(ctx context.Context, input string) (string, error) {
+func (m *QwenModel) Chat(ctx context.Context, historicalMessages []map[string]string, input string) (string, error) {
 	reqBody := `{"prompt": "` + input + `", "model": "qwen-max"}`
 	req, _ := http.NewRequest("POST", "https://dashscope.aliyuncs.com/api/v1/services/aigc/qwen/chat", strings.NewReader(reqBody))
 	req.Header.Set("Authorization", "Bearer "+m.apiKey)

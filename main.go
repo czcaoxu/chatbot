@@ -3,7 +3,6 @@ package main
 import (
 	"chatbot/ai"
 	"chatbot/database"
-	"context"
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis"
 	"net/http"
@@ -17,41 +16,6 @@ var (
 )
 
 // 聊天 API
-func chatHandler(c *gin.Context) {
-	var req struct {
-		UserID string `json:"user_id"`
-		Text   string `json:"text"`
-		Model  string `json:"model"`
-	}
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
-		return
-	}
-
-	model, err := router.GetModel(req.Model)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "不支持的模型"})
-		return
-	}
-
-	// 读取历史对话（上下文）
-	//historyKey := "chat:" + req.UserID
-	//prevMessages, _ := rdb.Get(historyKey).Result()
-	prevMessages := ""
-
-	reply, err := model.Chat(context.Background(), prevMessages+req.Text)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "AI 处理失败, " + err.Error()})
-		return
-	}
-
-	// 记录聊天历史
-	db.SaveMessage(req.UserID, req.Text, reply)
-	//rdb.Set(historyKey, prevMessages+req.Text+"\nAI: "+reply, 10*time.Minute)
-	//db.Exec("INSERT INTO chat_history (user_id, message, response) VALUES (?, ?, ?)", req.UserID, req.Text, reply)
-
-	c.JSON(http.StatusOK, gin.H{"reply": reply})
-}
 
 // 获取支持的模型
 func modelsHandler(c *gin.Context) {
@@ -85,7 +49,7 @@ func clearHandler(c *gin.Context) {
 
 func main() {
 	r := gin.Default()
-	r.POST("/chat", chatHandler)
+	r.POST("/chat", ChatHandler)
 	r.GET("/models", modelsHandler)
 	r.GET("/history", historyHandler)
 	r.POST("/clear", clearHandler)

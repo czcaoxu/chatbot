@@ -15,7 +15,7 @@ func NewOpenAIModel(apiKey string) *OpenAIModel {
 	}
 }
 
-func (m *OpenAIModel) Chat(ctx context.Context, input string) (string, error) {
+func (m *OpenAIModel) Chat(ctx context.Context, historicalMessages []map[string]string, input string) (string, error) {
 	resp, err := m.client.CreateChatCompletion(ctx, openai.ChatCompletionRequest{
 		Model: "gpt-4",
 		Messages: []openai.ChatCompletionMessage{

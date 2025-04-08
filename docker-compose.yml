@@ -11,9 +11,9 @@ services:
       MYSQL_DATABASE: "chatbot"
       OLLAMA_URL: "http://ollama:11434"
     depends_on:
-      - mysql
-#        condition: service_healthy
-#      ollama:
+      mysql:
+        condition: service_healthy
+#      - ollama
 #        condition: service_healthy
 
   mysql:
@@ -26,6 +26,12 @@ services:
       - "3307:3306"
     volumes:
       - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      interval: 5s
+      retries: 5
+      start_period: 10s
+      timeout: 5s
 
   ollama:
     image: ollama/ollama
@@ -34,7 +40,6 @@ services:
       - "11434:11434"
     volumes:
       - ollama_data:/root/.ollama
-#    entrypoint: ["/bin/sh", "-c", "ollama pull llama3 && ollama serve"]  # 让 Ollama 自动下载 Llama 3
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:11434" ]
       interval: 10s

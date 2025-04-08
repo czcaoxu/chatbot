@@ -3,6 +3,6 @@ package database
 import "chatbot/lib"
 
 type DataBase interface {
-	QueryHistoryMessages(userID string) []*lib.Message
-	SaveMessage(userID, userMsg, botResponse string)
+	QueryHistoryMessages(req *lib.ChatRequest) []*lib.Message
+	SaveMessage(req *lib.ChatRequest, botResponse string)
 }

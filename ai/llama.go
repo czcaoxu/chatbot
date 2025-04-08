@@ -24,21 +24,22 @@ func NewLlamaModel() *LlamaModel {
 	return &LlamaModel{apiURL: url}
 }
 
-func (m *LlamaModel) Chat(ctx context.Context, input string) (string, error) {
-	requestBody, _ := json.Marshal(map[string]interface{}{
-		"model": "llama3",
-		"messages": []map[string]string{
-			{
-				"role":    "system",
-				"content": "You are a helpful assistant.",
-			},
-			{
-				"role":    "user",
-				"content": input,
-			},
-		},
+func (m *LlamaModel) Chat(ctx context.Context, historicalMessages []map[string]string, input string) (string, error) {
+	message := make([]map[string]string, 0, len(historicalMessages)+2)
+	message = append(message, map[string]string{
+		"role":    "system",
+		"content": "You are a helpful assistant.",
+	})
+	message = append(message, historicalMessages...)
+	message = append(message, map[string]string{
+		"role":    "user",
+		"content": input,
 	})
 
+	requestBody, _ := json.Marshal(map[string]interface{}{
+		"model":    "llama3",
+		"messages": message,
+	})
 	resp, err := http.Post(m.apiURL, "application/json", bytes.NewBuffer(requestBody))
 	if err != nil {
 		return "", err
