@@ -11,7 +11,7 @@ COPY . .
 RUN go mod tidy
 
 # 5. 编译 Go 程序，生成二进制文件
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=arm64  go build -o app .
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=arm64  go build -o app ./cmd/main.go
 
 # 6. 检查编译出来的二进制文件是否存在
 RUN ls -la /app
